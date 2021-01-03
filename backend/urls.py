@@ -3,6 +3,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    #routes
     path('', views.index),
+    #api
     path('api/hg', views.indexAjax)
 ]
