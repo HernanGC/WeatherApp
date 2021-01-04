@@ -1,6 +1,7 @@
 .bg-light-blue {
     background-color: #0117aa;
     color: #fff;
+    background: linear-gradient(to top right,#0117aa, #678de0);
 }
 
 #main-container {

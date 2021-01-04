@@ -13,14 +13,49 @@ $('#search-form').submit(function (e) {
         let myData = {};
         let input = $('.form-control').val();
         let url = `http://api.openweathermap.org/data/2.5/weather?q=${input}&appid=772f2d88cb1fd3a790d48a49eb3d0aed`;
-        let response = fetch(url)
+        fetch(url)
         .then(res => res.json())
         .then(data => {
             console.log(data); 
-            $('.card-title').html(data.name);
-            $('#weather').html(data.weather[0].main);
-            $('#temp').html(`${kelvinToCelsius(data.main.temp)} °C`);
-            $('.card-img-top').attr('src', `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`);})
+            if (data.cod === 200) {
+                $('#city').html(data.name);
+                $('#weather').html(data.weather[0].main);
+                $('#temp').html(`${kelvinToCelsius(data.main.temp)} °C`);
+                $('#temp-img').attr('src', `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`);
+                document.querySelector('.weather-result').classList.remove('hidden');
+                $.ajax({
+                    url: 'api/add',
+                    type: 'POST',
+                    data: {
+                        csrfmiddlewaretoken: csrf,
+                        city: data.name,
+                        long: parseInt(data.coord.lon),
+                        lat: parseInt(data.coord.lat),
+                        weather_main: data.weather[0].main,
+                        weather_description: data.weather[0].description,
+                        weather_icon: data.weather[0].icon,
+                        temperature: parseInt(kelvinToCelsius(data.main.temp)),
+                        feels_like: parseInt(data.main.feels_like),
+                        temp_min: parseInt(data.main.temp_min),
+                        temp_max: parseInt(data.main.temp_max),
+                        pressure: parseInt(data.main.pressure),
+                        humidity: parseInt(data.main.humidity),
+                        visibility: parseInt(data.visibility),
+                        wind_speed: parseInt(data.wind.speed),
+                        wind_deg: parseInt(data.wind.deg),
+                        clouds: parseInt(data.clouds.all),
+                    }, success: function (resp) {
+                        console.log(resp);
+                    }
+                });
+            } else {
+                document.querySelector('.weather-result').classList.remove('hidden');
+                $('.card-title').html(data.message);
+                $('#weather').html('');
+                $('#temp').html('');
+                $('.card-img-top').attr('src', '');
+            }
+        })
         .catch(err => console.log(err))
     };
 });
