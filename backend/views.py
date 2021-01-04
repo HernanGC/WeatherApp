@@ -3,6 +3,10 @@ from django.http import HttpResponse
 from django.http.response import JsonResponse
 from .models import City, Headers
 
+#class requestHandlerView(View):
+ #   def get(self, request):
+        #do_something()
+
 
 def index(request):
     cities = City.objects.all().values()
@@ -11,7 +15,14 @@ def index(request):
 
 
 def indexAjax(request):
-    cities = City.objects.all().values()
+    cityy = request.POST.get('city').capitalize()
+    if cityy:
+        cities = list(City.objects.filter(city=cityy).values())
+        if cities:
+            citeis = cities
+        else: 
+            citeis = 'City not found'
     header = Headers.objects.get(name='index_header')
-    return JsonResponse({'city': list(cities)})
+    #res['hg'] = append('okxD!')
+    return JsonResponse({'city': citeis})
 
