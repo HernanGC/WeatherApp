@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http.response import JsonResponse
+from django.forms.models import model_to_dict
 from .models import LatestSearch, City, Headers
 
 #class requestHandlerView(View):
@@ -14,6 +15,12 @@ def index(request):
     latest_search = LatestSearch.objects.all().order_by('-id')[:5]
     return render(request, 'index.html', {'city': cities, 'header': header, 'latest_search': latest_search})
 
+def ajaxLatestSearch(request):
+    if request.method == 'GET':
+        latest_search = LatestSearch.objects.all().order_by('-id')[:5].values()
+        return JsonResponse({'latest_search': list(latest_search)})
+    else:
+        return JsonResponse({'msg': 'fallo'})
 
 def ajaxAddSearch(request):
     if request.method == 'POST':
@@ -35,7 +42,7 @@ def ajaxAddSearch(request):
         search.wind_deg = request.POST.get('wind_deg')
         search.clouds = request.POST.get('clouds')
         search.save()
-        return JsonResponse({'msg': 'success'})
+        return JsonResponse({'msg': 'success', 'search': model_to_dict(search)})
     else:
         return JsonResponse({'msg': 'failed'})
 

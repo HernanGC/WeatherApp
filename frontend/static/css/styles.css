@@ -61,3 +61,7 @@ img.flex-item {
 .hidden {
     display: none !important;
 }
+
+.card-weather {
+    width: 10rem !important;
+}

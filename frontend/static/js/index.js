@@ -7,16 +7,43 @@ const kelvinToCelsius = function (temp) {
     return Math.round(Number(temp) - 273.15 * 10 / 10) 
 }
 
+
+const transientSearch = function () {
+    
+}
+
+const updateLatestSearch = function (data) {
+    fetch('api/get/latestsearch')
+    .then(res => res.json())
+    .then(data => {
+        let resultImg = document.querySelectorAll('.latest-r-img');
+        let resultTemp = document.querySelectorAll('.latest-r-temp');
+        let resultTitle = document.querySelectorAll('.latest-r-title');
+        let resultMain = document.querySelectorAll('.latest-r-main');
+        let html = '';
+        data.latest_search.forEach((el, index) => {
+            let {weather_icon, temperature, city, weather_main} = el;
+            resultImg[index].src = `http://openweathermap.org/img/wn/${weather_icon}@2x.png`;
+            resultTemp[index].textContent = temperature;
+            resultTitle[index].textContent = city;
+            resultMain[index].textContent = weather_main;
+            html += ``;
+            console.log(city);    
+        });
+    })
+    .catch(err => console.log(`An error has ocurred: ${err}`))
+
+}
+
 $('#search-form').submit(function (e) {
     e.preventDefault();
     if ($('.form-control').val()) {
-        let myData = {};
         let input = $('.form-control').val();
         let url = `http://api.openweathermap.org/data/2.5/weather?q=${input}&appid=772f2d88cb1fd3a790d48a49eb3d0aed`;
         fetch(url)
         .then(res => res.json())
         .then(data => {
-            console.log(data); 
+            // console.log(data); 
             if (data.cod === 200) {
                 $('#city').html(data.name);
                 $('#weather').html(data.weather[0].main);
@@ -45,6 +72,7 @@ $('#search-form').submit(function (e) {
                         wind_deg: parseInt(data.wind.deg),
                         clouds: parseInt(data.clouds.all),
                     }, success: function (resp) {
+                        updateLatestSearch();
                         console.log(resp);
                     }
                 });
@@ -58,7 +86,10 @@ $('#search-form').submit(function (e) {
         })
         .catch(err => console.log(err))
     };
+
 });
+
+
 
     /*$('#search-form').submit(function (e) {
         console.log($('.form-control').val());

@@ -31,11 +31,11 @@
                 <div class="weather-result">
                     <div class="col">
                         <div class="card card-weather">
-                            <img src='http://openweathermap.org/img/wn/{{search.weather_icon}}@2x.png' class="card-img-top" alt="">
+                            <img src='http://openweathermap.org/img/wn/{{search.weather_icon}}@2x.png' class="card-img-top latest-r-img" alt="">
                             <div class="card-body">
-                                <p class="card-text">{{search.temperature}}</p>
-                              <h5 class="card-title">{{search.city}}</h5>
-                              <p class="card-text">{{search.weather_main}}</p>
+                                <p class="card-text latest-r-temp" >{{search.temperature}} °C</p>
+                              <h5 class="card-title latest-r-title" >{{search.city}}</h5>
+                              <p class="card-text latest-r-main" >{{search.weather_main}}</p>
                             </div>
                         </div>
                     </div>
