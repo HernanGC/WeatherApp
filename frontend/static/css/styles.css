@@ -26,9 +26,9 @@
 }
 
 #search-form {
-    padding: 10rem;
+    padding: 1rem 10rem;
     width: 60rem;
-    height: 20rem;
+    height: 7rem;
 }
 
 .flex-item {
@@ -64,4 +64,8 @@ img.flex-item {
 
 .card-weather {
     width: 10rem !important;
+}
+
+.last-s {
+    padding: 2rem 0;
 }

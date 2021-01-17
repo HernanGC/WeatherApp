@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http.response import JsonResponse
 from django.forms.models import model_to_dict
-from .models import LatestSearch, City, Headers
+from .models import LatestSearch, City, Headers, FavouriteCity
 
 #class requestHandlerView(View):
  #   def get(self, request):
@@ -11,9 +11,15 @@ from .models import LatestSearch, City, Headers
 
 def index(request):
     cities = City.objects.all().values()
+    favourite_cities = FavouriteCity.objects.all().order_by('-id')[:5]
     header = Headers.objects.get(name='index_header')
     latest_search = LatestSearch.objects.all().order_by('-id')[:5]
-    return render(request, 'index.html', {'city': cities, 'header': header, 'latest_search': latest_search})
+    return render(request, 'index.html', {
+        'city': cities, 
+        'header': header, 
+        'latest_search': latest_search, 
+        'favourite_cities': favourite_cities
+        })
 
 def ajaxLatestSearch(request):
     if request.method == 'GET':
@@ -45,8 +51,10 @@ def ajaxAddSearch(request):
         return JsonResponse({'msg': 'success', 'search': model_to_dict(search)})
     else:
         return JsonResponse({'msg': 'failed'})
+        
 
 
+# def getFavouriteCities(request):
 
 
 

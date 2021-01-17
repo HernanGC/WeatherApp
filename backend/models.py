@@ -24,6 +24,28 @@ class LatestSearch(models.Model):
     def __str__(self):
         return f'{self.pk} - {self.city}'
 
+    def setName(self, pkey, name):
+        city = LatestSearch.objects.filter(pk=pkey)
+        city.city = name
+
+class FavouriteCity(models.Model):
+    city = models.ForeignKey(LatestSearch, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.city.pk} - {self.city.city}'
+
+    def getName(self):
+        return self.city.city
+
+    def getTemp(self):
+        return self.city.temperature
+    
+    def getWeather(self):
+        return self.city.weather_main
+
+    def getIcon(self):
+        return self.city.weather_icon
+
 class City(models.Model):
     city = models.CharField(max_length=30, blank=True)
     country = models.CharField(max_length=40)
@@ -44,3 +66,8 @@ class Headers(models.Model):
 
     def __str__(self):
         return self.name
+
+# class MostSearched(models.Model):
+
+#     def __str__(self):
+#         return f'{self.pk} - {self.city}'

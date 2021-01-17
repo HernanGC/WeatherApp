@@ -20,14 +20,12 @@ const updateLatestSearch = function (data) {
         let resultTemp = document.querySelectorAll('.latest-r-temp');
         let resultTitle = document.querySelectorAll('.latest-r-title');
         let resultMain = document.querySelectorAll('.latest-r-main');
-        let html = '';
         data.latest_search.forEach((el, index) => {
             let {weather_icon, temperature, city, weather_main} = el;
             resultImg[index].src = `http://openweathermap.org/img/wn/${weather_icon}@2x.png`;
-            resultTemp[index].textContent = temperature;
+            resultTemp[index].textContent = `${temperature} °C`;
             resultTitle[index].textContent = city;
             resultMain[index].textContent = weather_main;
-            html += ``;
             console.log(city);    
         });
     })

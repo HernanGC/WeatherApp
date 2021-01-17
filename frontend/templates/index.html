@@ -1,18 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
+
+{% if favourite_cities %}
+    {% for city in favourite_cities %}
+        <p>{{ city.getWeather }}</p>
+    {% endfor %}
+{% endif %}
+
 <div class="containert" id="main-container-index">
     <div class="flex-container">
-        <div class="row">
-        <form id="search-form">{% csrf_token %}
-            <div class="flex-item">
-                <img src="static/images/w-icon-nobg-sm.png" alt="" class="flex-item">
-                <input type="text" class="flex-item form-control" placeholder="Type a city name..." aria-label="Recipient's username" aria-describedby="button-addon2">
-                <button class="flex-item btn btn-outline-light" type="submit" id="button-addon2">Search</button>
-            </div>
-        </form>
-        </div>
         <div class="row col-12">
-            <div class="weather-result hidden">
+            <div class="weather-result last-s hidden">
                 <div class="col">
                     <div class="card card-weather">
                         <img src="" class="card-img-top" id="temp-img" alt="">
@@ -25,24 +23,36 @@
                 </div>
             </div>
         </div>
-        {% if latest_search %}
-            {% for search in latest_search %}
-            <div class="row col-2">
-                <div class="weather-result">
-                    <div class="col">
-                        <div class="card card-weather">
-                            <img src='http://openweathermap.org/img/wn/{{search.weather_icon}}@2x.png' class="card-img-top latest-r-img" alt="">
-                            <div class="card-body">
-                                <p class="card-text latest-r-temp" >{{search.temperature}} °C</p>
-                              <h5 class="card-title latest-r-title" >{{search.city}}</h5>
-                              <p class="card-text latest-r-main" >{{search.weather_main}}</p>
+        <div class="row">
+            <form id="search-form">{% csrf_token %}
+                <div class="flex-item">
+                    <img src="static/images/w-icon-nobg-sm.png" alt="" class="flex-item">
+                    <input type="text" class="flex-item form-control" placeholder="Type a city name..." aria-label="Recipient's username" aria-describedby="button-addon2">
+                    <button class="flex-item btn btn-outline-light" type="submit" id="button-addon2">Search</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="row col-12 justify-content-center">
+            {% if latest_search %}
+                {% for search in latest_search %}
+                <div class="col-2">
+                    <div class="weather-result">
+                        <div class="col">
+                            <div class="card card-weather">
+                                <img src='http://openweathermap.org/img/wn/{{search.weather_icon}}@2x.png' class="card-img-top latest-r-img" alt="">
+                                <div class="card-body">
+                                    <p class="card-text latest-r-temp" >{{search.temperature}} °C</p>
+                                <h5 class="card-title latest-r-title" >{{search.city}}</h5>
+                                <p class="card-text latest-r-main" >{{search.weather_main}}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
-        {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
     </div>
     
 </div>
