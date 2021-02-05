@@ -1,4 +1,35 @@
-$('document').ready(function () {
+document.addEventListener('DOMContentLoaded', function () {
+
+const searchForm = document.getElementById('search-form');
+const searchInput = document.querySelector('.form-control');
+
+const searchResult = {
+    city:    document.getElementById('city'),
+    weather: document.getElementById('weather'),
+    temp:    document.getElementById('temp'),
+    icon:    document.getElementById('temp-img')
+};
+
+
+const dataToSend = {
+    city: data.name,
+    long: parseInt(data.coord.lon),
+    lat: parseInt(data.coord.lat),
+    weather_main: data.weather[0].main,
+    weather_description: data.weather[0].description,
+    weather_icon: data.weather[0].icon,
+    temperature: parseInt(kelvinToCelsius(data.main.temp)),
+    feels_like: parseInt(data.main.feels_like),
+    temp_min: parseInt(data.main.temp_min),
+    temp_max: parseInt(data.main.temp_max),
+    pressure: parseInt(data.main.pressure),
+    humidity: parseInt(data.main.humidity),
+    visibility: parseInt(data.visibility),
+    wind_speed: parseInt(data.wind.speed),
+    wind_deg: parseInt(data.wind.deg),
+    clouds: parseInt(data.clouds.all),
+};
+
 
 var csrf = $('input[name=csrfmiddlewaretoken]').val();
 
@@ -8,9 +39,16 @@ const kelvinToCelsius = function (temp) {
 }
 
 
-const transientSearch = function () {
-    
+const clearInput = function () {
+    console.log(document.querySelector('.form-control').innerHTML);
+    document.querySelector('.form-control').value = '';
+
 }
+
+const isLoading = function () {
+
+}
+
 
 const updateLatestSearch = function (data) {
     fetch('api/get/latestsearch')
@@ -26,17 +64,46 @@ const updateLatestSearch = function (data) {
             resultTemp[index].textContent = `${temperature} °C`;
             resultTitle[index].textContent = city;
             resultMain[index].textContent = weather_main;
-            console.log(city);    
+            // console.log(city);    
         });
     })
     .catch(err => console.log(`An error has ocurred: ${err}`))
 
 }
 
+searchForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    if (searchInput.val) {
+        let inputVal = searchInput.val;
+        let url = `http://api.openweathermap.org/data/2.5/weather?q=${inputVal}&appid=772f2d88cb1fd3a790d48a49eb3d0aed`;
+        fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            if (data.cod === 200) {
+                searchResult.city.textContent = data.name;
+                searchResult.weather.textContent = data.weather[0].main;
+                searchResult.temp.textContent = `${kelvinToCelsius(data.main.temp)} °C`;
+                searchResult.icon.src = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+                document.querySelector('.weather-result').classList.remove('hidden');
+                fetch('api/add', {
+                    method: 'POST',
+                    body: {
+
+                    }
+                });
+            }
+        })
+    }
+});
+
+
+
 $('#search-form').submit(function (e) {
     e.preventDefault();
     if ($('.form-control').val()) {
-        let input = $('.form-control').val();
+        let inp = $('.form-control');
+        let input = inp.val();
         let url = `http://api.openweathermap.org/data/2.5/weather?q=${input}&appid=772f2d88cb1fd3a790d48a49eb3d0aed`;
         fetch(url)
         .then(res => res.json())
@@ -71,7 +138,7 @@ $('#search-form').submit(function (e) {
                         clouds: parseInt(data.clouds.all),
                     }, success: function (resp) {
                         updateLatestSearch();
-                        console.log(resp);
+                        clearInput();
                     }
                 });
             } else {
@@ -87,34 +154,4 @@ $('#search-form').submit(function (e) {
 
 });
 
-
-
-    /*$('#search-form').submit(function (e) {
-        console.log($('.form-control').val());
-        e.preventDefault();
-        if ($('.form-control').val()) {
-            let input = $('.form-control').val();
-            $.ajax({
-                url: 'api/hg',
-                type: 'POST',
-                data: {
-                    city: input,
-                    csrfmiddlewaretoken: csrf
-                },
-                success: function (res) {
-                    // cities = JSON.parse(res);
-                    let template = '';
-                    for (let i = 0; i < res['city'].length; i++) {
-                        template += `<p>
-                        <h4>${res['city'][i]['city']}</h4>
-                        <h4>${res['city'][i]['country']}</h4>
-                        <h4>${res['city'][i]['wheather']}</h4>`;
-                        console.log(res['city'][i]); 
-                         
-                    } 
-                $('#result').html(template); 
-                }
-            });
-        }
-    });*/
 });

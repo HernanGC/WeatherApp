@@ -69,3 +69,7 @@ img.flex-item {
 .last-s {
     padding: 2rem 0;
 }
+
+input.flex-item {
+    text-transform: capitalize;
+}

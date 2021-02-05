@@ -30,6 +30,7 @@ class LatestSearch(models.Model):
 
 class FavouriteCity(models.Model):
     city = models.ForeignKey(LatestSearch, on_delete=models.CASCADE)
+    added_at = models.TimeField
 
     def __str__(self):
         return f'{self.city.pk} - {self.city.city}'
