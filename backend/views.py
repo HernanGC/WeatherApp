@@ -1,12 +1,15 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http.response import JsonResponse
+
+import json, requests, logging, ast
+
 from django.forms.models import model_to_dict
 from .models import LatestSearch, City, Headers, FavouriteCity
 
-#class requestHandlerView(View):
- #   def get(self, request):
-        #do_something()
+from backend.helpers import prepare_search_data, kelvinToCelsius
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -21,52 +24,29 @@ def index(request):
         'favourite_cities': favourite_cities
         })
 
+
+def searchRequest(request):
+    if request.method == 'POST':
+        body_unicode = request.body.decode('utf-8')
+        input_data = json.loads(body_unicode)['search']
+
+        request_string = requests.get(f'http://api.openweathermap.org/data/2.5/weather?q={input_data}&appid=772f2d88cb1fd3a790d48a49eb3d0aed')
+        request_dict = ast.literal_eval(request_string.text)
+        
+        if request_dict['cod'] == 200:
+            new_search_object = prepare_search_data(request_dict)
+            new_search = LatestSearch(**new_search_object['search_object'])
+            new_search.save()
+            return JsonResponse({'msg': 'success', 'body': new_search_object['result_object']})
+        else:
+            return JsonResponse({'msg': 'fail', 'body': request_dict['message']})
+    else:
+        return JsonResponse({'msg': 'fail'})
+
+
 def ajaxLatestSearch(request):
     if request.method == 'GET':
-        latest_search = LatestSearch.objects.all().order_by('-id')[:5].values()
+        latest_search = LatestSearch.objects.all().order_by('-id')[1:6].values()
         return JsonResponse({'latest_search': list(latest_search)})
     else:
         return JsonResponse({'msg': 'fallo'})
-
-def ajaxAddSearch(request):
-    if request.method == 'POST':
-        search = LatestSearch()
-        search.city = request.POST.get('city')
-        search.long = request.POST.get('long')
-        search.lat = request.POST.get('lat')
-        search.weather_main = request.POST.get('weather_main')
-        search.weather_description = request.POST.get('weather_description')
-        search.weather_icon = request.POST.get('weather_icon')
-        search.temperature = request.POST.get('temperature')
-        search.feels_like = request.POST.get('feels_like')
-        search.temp_min = request.POST.get('temp_min')
-        search.temp_max = request.POST.get('temp_max')
-        search.pressure = request.POST.get('pressure')
-        search.humidity = request.POST.get('humidity')
-        search.visibility = request.POST.get('visibility')
-        search.wind_speed = request.POST.get('wind_speed')
-        search.wind_deg = request.POST.get('wind_deg')
-        search.clouds = request.POST.get('clouds')
-        search.save()
-        return JsonResponse({'msg': 'success', 'search': model_to_dict(search)})
-    else:
-        return JsonResponse({'msg': 'failed'})
-        
-
-
-# def getFavouriteCities(request):
-
-
-
-# def indexAjax(request):
-#     cityy = request.POST.get('city').capitalize()
-#     if cityy:
-#         cities = list(City.objects.filter(city=cityy).values())
-#         if cities:
-#             citeis = cities
-#         else: 
-#             citeis = 'City not found'
-#     header = Headers.objects.get(name='index_header')
-#     #res['hg'] = append('okxD!')
-#     return JsonResponse({'city': citeis})
-

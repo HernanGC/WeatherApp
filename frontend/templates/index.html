@@ -1,11 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
 
-{% if favourite_cities %}
-    {% for city in favourite_cities %}
-        <p>{{ city.getWeather }}</p>
-    {% endfor %}
-{% endif %}
 
 <div class="containert" id="main-container-index">
     <div class="flex-container">
