@@ -1,3 +1,11 @@
+html {
+    min-height: 100%;
+}
+body {
+    min-height: 100%;
+}
+
+
 .bg-light-blue {
     background-color: #0117aa;
     color: #fff;
@@ -6,7 +14,7 @@
 
 #main-container {
     display: flex;
-    /* height: 87vh; */
+    /* height: 100vh; */
 }
 
 .footer {
@@ -78,4 +86,23 @@ img.flex-item {
 
 input.flex-item {
     text-transform: capitalize;
+}
+
+#loading {
+    width: 81px;
+    height: 81px;
+    border: 7px solid #f3f3fe;
+    border-top: 7px solid #9c41f2;
+    border-radius: 100%;
+    margin: 12px auto;
+    /* visibility: hidden; */
+    animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    } to {
+        transform: rotate(360deg);
+    }
 }

@@ -2,12 +2,7 @@ def prepare_search_data(data):
     search_object = handle_search_data(data)
     return_object = {
         'search_object': search_object,
-        'result_object': {
-            'city': search_object['city'],
-            'weather': search_object['weather_main'],
-            'temperature': search_object['temperature'],
-            'icon': search_object['weather_icon']
-        } 
+        'result_object': get_last_search(search_object)
     }
     return return_object
 
@@ -31,5 +26,14 @@ def handle_search_data(data):
         'clouds'             : int(data['clouds']['all'])
     }
 
+def get_last_search(search):
+    return {
+        'city': search['city'],
+        'weather': search['weather_main'],
+        'temperature': search['temperature'],
+        'icon': search['weather_icon']
+    }
+
+    
 def kelvinToCelsius(temp):
     return temp - 273.15

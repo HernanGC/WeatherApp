@@ -28,6 +28,9 @@ class LatestSearch(models.Model):
         city = LatestSearch.objects.filter(pk=pkey)
         city.city = name
 
+    def getName(self):
+        return self.city
+
 class FavouriteCity(models.Model):
     city = models.ForeignKey(LatestSearch, on_delete=models.CASCADE)
     added_at = models.TimeField

@@ -5,6 +5,9 @@ var csrf = $('input[name=csrfmiddlewaretoken]').val();
 const searchForm  = document.getElementById('search-form');
 const searchInput = document.querySelector('.form-control');
 
+const loader = document.getElementById('loading');
+const weatherResult = document.getElementById('weather-result');
+
 const searchResult = {
     city:    document.getElementById('city'),
     weather: document.getElementById('weather'),
@@ -17,7 +20,14 @@ const searchResult = {
 
 searchForm.addEventListener('submit', function (e) {
     e.preventDefault();
-
+    if (isSearchRepeated()) {
+        hideElement(weatherResult);
+        showElement(loader);
+        clearInput();
+        return;
+    }
+    hideElement(weatherResult);
+    showElement(loader);
     let bodyResponse = '';
     
     let searchInputValue = {
@@ -34,7 +44,9 @@ searchForm.addEventListener('submit', function (e) {
         .then(res => res.json())
         .then(data => {
             bodyResponse = data.body;
-            showSearchResult();
+            hideElement(loader);
+            showElement(weatherResult);
+            clearInput();
             if (bodyResponse && data.msg == 'success') {
                 updateResult(bodyResponse);
                 updateLatestSearch();
@@ -86,17 +98,28 @@ const updateResult = function (bodyResponse) {
 
 /** HELPERS */
 
+
+const isSearchRepeated = function () {
+    console.log(searchInput.value);
+    console.log(searchResult.city);
+    return searchInput.value.toLowerCase() == searchResult.city.textContent.toLowerCase();
+}
+
+
 const kelvinToCelsius = function (temp) {
     return Math.round(Number(temp) - 273.15 * 10 / 10) 
 }
 
 const clearInput = function () {
-    console.log(document.querySelector('.form-control').value);
     document.querySelector('.form-control').value = '';
 }
 
-const showSearchResult = function () {
-    document.querySelector('.weather-result').classList.remove('hidden');
+const hideElement = function (element) {
+    element.classList.add('hidden');
+}
+
+const showElement = function (element) {
+    element.classList.remove('hidden');
 }
 
 const resetSearchResult = function () {
@@ -105,6 +128,15 @@ const resetSearchResult = function () {
     searchResult.temp.textContent = '';
     searchResult.icon.src = '';
 }
+
+const sleeping = async function (ms) {
+    return await sleep(ms);
+}
+
+
+async function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
 const isLoading = function () {
 

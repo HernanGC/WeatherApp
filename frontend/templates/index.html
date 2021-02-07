@@ -2,10 +2,12 @@
 {% block content %}
 
 
+
 <div class="containert" id="main-container-index">
     <div class="flex-container">
         <div class="row col-12">
-            <div class="weather-result last-s hidden">
+            <div id="loading" class="hidden"></div>
+            <div class="weather-result last-s hidden" id="weather-result">
                 <div class="col">
                     <div class="card card-weather">
                         <img src="" class="card-img-top" id="temp-img" alt="">
