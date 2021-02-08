@@ -1,4 +1,5 @@
 from django.db import models
+from backend.helpers import kelvinToCelsius
 
 # Create your models here.
 
@@ -30,6 +31,12 @@ class LatestSearch(models.Model):
 
     def getName(self):
         return self.city
+
+    def getId(self):
+        return self.pk
+
+    def getCelsiusTemperature(self):
+        return round(kelvinToCelsius(self.temperature))
 
 class FavouriteCity(models.Model):
     city = models.ForeignKey(LatestSearch, on_delete=models.CASCADE)

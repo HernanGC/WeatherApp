@@ -1,12 +1,12 @@
-def prepare_search_data(data):
-    search_object = handle_search_data(data)
-    return_object = {
+def prepareSearchData(data):
+    search_object = handleSearchData(data)
+    return {
         'search_object': search_object,
-        'result_object': get_last_search(search_object)
+        'result_object': getLastSearch(search_object)
     }
-    return return_object
 
-def handle_search_data(data):
+
+def handleSearchData(data):
     return {
         'city'               : data['name'],
         'long'               : int(data['coord']['lon']),
@@ -26,14 +26,29 @@ def handle_search_data(data):
         'clouds'             : int(data['clouds']['all'])
     }
 
-def get_last_search(search):
+
+def getLastSearch(search):
     return {
-        'city': search['city'],
-        'weather': search['weather_main'],
-        'temperature': search['temperature'],
-        'icon': search['weather_icon']
+        'id'                 : search.get('id', ''),
+        'city'               : search['city'],
+        'long'               : search['long'],
+        'lat'                : search['lat'],
+        'weather_main'       : search['weather_main'],
+        'weather_description': search['weather_description'],
+        'weather_icon'       : search['weather_icon'],
+        'temperature'        : search['temperature'],
+        'feels_like'         : search['feels_like'],
+        'temp_min'           : search['temp_min'],
+        'temp_max'           : search['temp_max'],
+        'pressure'           : search['pressure'],
+        'humidity'           : search['humidity'],
+        'visibility'         : search['visibility'],
+        'wind_speed'         : search['wind_speed'],
+        'wind_deg'           : search['wind_deg'],
+        'clouds'             : search['clouds']
     }
 
     
 def kelvinToCelsius(temp):
-    return temp - 273.15
+    return round(temp - 273.15)
+

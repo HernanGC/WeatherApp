@@ -7,5 +7,6 @@ urlpatterns = [
     path('', views.index),
     #api
     path('api/get/latestsearch', views.ajaxLatestSearch),
-    path('api/searchrequest', views.searchRequest)
+    path('api/searchrequest', views.searchRequest),
+    path('api/searchbyid', views.ajaxGetSearchById)
 ]

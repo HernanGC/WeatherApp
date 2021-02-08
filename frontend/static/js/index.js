@@ -5,10 +5,47 @@ var csrf = $('input[name=csrfmiddlewaretoken]').val();
 const searchForm  = document.getElementById('search-form');
 const searchInput = document.querySelector('.form-control');
 
+const weatherResultAll = document.querySelectorAll('.card-weather');
+
 const loader = document.getElementById('loading');
 const weatherResult = document.getElementById('weather-result');
 
+//TODO: terminar esto
+let weatherObject = {
+    'id':                  '',
+    'city':                '',
+    'long':                '',
+    'lat':                 '',
+    'weather_main':        '',
+    'weather_description': '',
+    'weather_icon':        '',
+    'temperature':         '',
+    'feels_like':          '',
+    'temp_min':            '',
+    'temp_max':            '',
+    'pressure':            '',
+    'humidity':            '',
+    'visibility':          '',
+    'wind_speed':          '',
+    'wind_deg':            '',
+    'clouds':              '',
+    setObjectState(data) {
+        Object.keys(data).forEach(key => {
+            // console.log(key);
+            // console.log(data[key]);
+            this.key = data[key];
+            // console.log(this.key);
+            return this;
+        });  
+    }
+};
+
+
+// let modalClose = document.querySelector('.close-modal');
+// let weatherModal = document.querySelector('.weather-modal');
+
 const searchResult = {
+    id:      document.getElementById('weather-id'),
     city:    document.getElementById('city'),
     weather: document.getElementById('weather'),
     temp:    document.getElementById('temp'),
@@ -18,21 +55,20 @@ const searchResult = {
 
 /** MAIN FUNCTIONS */
 
+
 searchForm.addEventListener('submit', function (e) {
     e.preventDefault();
-    if (isSearchRepeated()) {
-        hideElement(weatherResult);
-        showElement(loader);
-        clearInput();
-        return;
-    }
+    // if (isSearchRepeated()) {
+    //     hideElement(weatherResult);
+    //     showElement(loader);
+    //     clearInput();
+    //     return;
+    // }
     hideElement(weatherResult);
     showElement(loader);
     let bodyResponse = '';
     
-    let searchInputValue = {
-        search: searchInput.value,
-    };
+    let searchInputValue = searchInput.value;
     if (searchInputValue) {
         fetch('api/searchrequest', {
             method: 'POST',
@@ -47,21 +83,80 @@ searchForm.addEventListener('submit', function (e) {
             hideElement(loader);
             showElement(weatherResult);
             clearInput();
-            if (bodyResponse && data.msg == 'success') {
-                updateResult(bodyResponse);
-                updateLatestSearch();
-                console.log(typeof data.body);
-            } else {
-                console.log(typeof data.body);
-                updateResult(bodyResponse);
-            }
+            updateResult(bodyResponse);
+            updateLatestSearch(data.msg);
         })
         .catch(err => console.log(`ERRRRRRR ${err}`))
     }
 });
 
-const updateLatestSearch = function () {
-    fetch('api/get/latestsearch')
+
+for (weatherRes of weatherResultAll) {
+    weatherRes.addEventListener('click', function () {
+        let modal = {
+            type: 'div',
+            parent: document.body,
+            attributes: {
+                class: 'weather-modal'
+            },
+            children: [{
+                type: 'button',
+                attributes: {
+                    class: 'close-modal',
+                },
+                children: ['x']
+            }]
+        };
+        let overlay = {
+            type: 'div',
+            parent: document.body,
+            attributes: {
+                class: 'overlay'
+            },
+            children: []
+        };
+        // TODO: Mejorar esta forma de obtener el id en el dom
+        let objectId = weatherRes.children[1].children[0].textContent;
+        console.log(objectId);
+        fetch('api/searchbyid', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrf
+            },
+            body: JSON.stringify(objectId)
+        })
+        .then(res => res.json())
+        .then(data => {
+            let al = weatherObject.setObjectState(data.body);
+            console.log(al);
+        })
+        if (!document.querySelector('.weather-modal')) {
+            let weatherModal = createElement(modal);
+            let overlayEffect = createElement(overlay);
+            weatherModal.children[0].addEventListener('click', function () {
+                weatherModal.remove();
+                overlayEffect.remove();
+            });  
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    weatherModal.remove();
+                    overlayEffect.remove();
+                }
+            });
+        }
+    });
+}
+
+
+const updateLatestSearch = function (msg) {
+    let dataToSend =  msg;
+    fetch('api/get/latestsearch', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrf
+        },
+        body: JSON.stringify(dataToSend)
+    })
     .then(res => res.json())
     .then(data => {
         let resultImg   = document.querySelectorAll('.latest-r-img');
@@ -69,6 +164,7 @@ const updateLatestSearch = function () {
         let resultTitle = document.querySelectorAll('.latest-r-title');
         let resultMain  = document.querySelectorAll('.latest-r-main');
         data.latest_search.forEach((el, index) => {
+            console.log(el);
             let {weather_icon, temperature, city, weather_main} = el;
             resultImg[index].src = `http://openweathermap.org/img/wn/${weather_icon}@2x.png`;
             resultTemp[index].textContent = `${kelvinToCelsius(temperature)} °C`;
@@ -80,28 +176,51 @@ const updateLatestSearch = function () {
 
 }
 
+
 const updateResult = function (bodyResponse) {
     
     if (typeof bodyResponse === 'object') {
+        console.log(bodyResponse);
         searchResult.city.textContent = bodyResponse.city;
-        searchResult.weather.textContent = bodyResponse.weather;
+        searchResult.weather.textContent = bodyResponse.weather_main;
         searchResult.temp.textContent = `${kelvinToCelsius(bodyResponse.temperature)} °C`;
-        searchResult.icon.src = `http://openweathermap.org/img/wn/${bodyResponse.icon}@2x.png`;
+        searchResult.icon.src = `http://openweathermap.org/img/wn/${bodyResponse.weather_icon}@2x.png`;
     } else {
         resetSearchResult();
         searchResult.city.textContent = bodyResponse;
     }
-    
-    
 }
 
 
 /** HELPERS */
 
 
+const createElement = function ({
+    type,
+    parent,
+    attributes = {},
+    children = []
+}) {
+   const element = document.createElement(type);
+
+   Object.keys(attributes).forEach((key) => {
+        element.setAttribute(key, attributes[key]);
+   });
+
+   children.forEach(child => {
+       if (typeof child == 'object') {
+           return createElement({...child, parent: element })
+       }
+       const textNode = document.createTextNode(child);
+       element.appendChild(textNode);
+   });
+
+   parent.appendChild(element);
+   return element;
+}
+
+
 const isSearchRepeated = function () {
-    console.log(searchInput.value);
-    console.log(searchResult.city);
     return searchInput.value.toLowerCase() == searchResult.city.textContent.toLowerCase();
 }
 
@@ -110,17 +229,21 @@ const kelvinToCelsius = function (temp) {
     return Math.round(Number(temp) - 273.15 * 10 / 10) 
 }
 
+
 const clearInput = function () {
     document.querySelector('.form-control').value = '';
 }
+
 
 const hideElement = function (element) {
     element.classList.add('hidden');
 }
 
+
 const showElement = function (element) {
     element.classList.remove('hidden');
 }
+
 
 const resetSearchResult = function () {
     searchResult.city.textContent = '';
@@ -129,16 +252,7 @@ const resetSearchResult = function () {
     searchResult.icon.src = '';
 }
 
-const sleeping = async function (ms) {
-    return await sleep(ms);
-}
-
-
-async function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-const isLoading = function () {
+const setObjectState = function () {
 
 }
 
