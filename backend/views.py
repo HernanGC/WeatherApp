@@ -1,15 +1,13 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http.response import JsonResponse
+from django.forms.models import model_to_dict
 
 import json, requests, logging, ast
 
-from django.forms.models import model_to_dict
 from .models import LatestSearch, City, Headers, FavouriteCity
+from backend.helpers import handleSearchData, decodeRequestBody
 
-from backend.helpers import prepareSearchData, getLastSearch
-
-logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -25,25 +23,20 @@ def index(request):
         })
 
 
-def searchRequest(request):
+def ajaxSearchRequest(request):
     if request.method == 'POST':
-        # TODO: Hacer un helper que haga este decodeo
-        input_data = request.body.decode('utf-8')
-
-# TODO: FILTRAR EL POR LOS CAMPOS QUE YO NECESITO, PARA NO OBTENER EL OBJECTO COMPLETO, SOLO NECESITO ESTO ['city', 'weather_main', 'temperature', 'weather_icon']
-        last_search = LatestSearch.objects.latest('id')
-        print(model_to_dict(last_search))
-        # fields_to_filter = ['pk', 'city', 'weather_main', 'temperature', 'weather_icon']
+        input_data = decodeRequestBody(request.body)
+        last_search = getLastModelObjectById()
         if last_search.getName() == input_data.capitalize():
-            return JsonResponse({'msg': 'success', 'body': getLastSearch(model_to_dict(last_search))})
-
+            return JsonResponse({'msg': 'success', 'body': model_to_dict(last_search)})
         request_string = requests.get(f'http://api.openweathermap.org/data/2.5/weather?q={input_data}&appid=772f2d88cb1fd3a790d48a49eb3d0aed')
         request_dict = ast.literal_eval(request_string.text)
         if request_dict['cod'] == 200:
-            new_search_object = prepareSearchData(request_dict)
-            new_search = LatestSearch(**new_search_object['search_object'])
+            new_search_object = handleSearchData(request_dict)
+            new_search = LatestSearch(**new_search_object)
             new_search.save()
-            return JsonResponse({'msg': 'success', 'body': new_search_object['result_object']})
+            latestObject = getLastModelObjectById()
+            return JsonResponse({'msg': 'success', 'body': model_to_dict(latestObject)})
         else:
             return JsonResponse({'msg': 'fail', 'body': request_dict['message']})
     else:
@@ -52,8 +45,7 @@ def searchRequest(request):
 
 def ajaxLatestSearch(request):
     if request.method == 'POST':
-        # TODO: Hacer un helper que haga este decodeo
-        status = request.body.decode('utf-8')
+        status = decodeRequestBody(request.body)
         if status == 'success':
             latest_search = LatestSearch.objects.all().order_by('-id')[1:6].values()
         else:
@@ -69,10 +61,18 @@ def getLastSearchObject():
 
 def ajaxGetSearchById(request):
     if request.method == 'POST':
-        # TODO: Hacer un helper que haga este decodeo
-        objectId = request.body.decode('utf-8').replace('"', '')
+        objectId = decodeRequestBody(request.body)
+        print(type(objectId))
         latest_search = LatestSearch.objects.get(pk=int(objectId))
-        print(latest_search)
+        print(model_to_dict(latest_search))
         return JsonResponse({'msg': 'success', 'body': model_to_dict(latest_search)})
     else:
         return JsonResponse({'msg': 'fallo'})
+
+
+def getModelObjectById():
+    return LatestSearch.objects.get(pk=id)
+
+
+def getLastModelObjectById():
+    return LatestSearch.objects.latest('id')

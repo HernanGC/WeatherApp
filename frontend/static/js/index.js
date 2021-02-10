@@ -1,3 +1,6 @@
+import { modal, overlay, loader, weatherObject, kelvinToCelsius} from '../js/helper.js';
+
+
 document.addEventListener('DOMContentLoaded', function () {
 
 var csrf = $('input[name=csrfmiddlewaretoken]').val();
@@ -7,42 +10,10 @@ const searchInput = document.querySelector('.form-control');
 
 const weatherResultAll = document.querySelectorAll('.card-weather');
 
-const loader = document.getElementById('loading');
+// const loader = document.getElementById('loading');
 const weatherResult = document.getElementById('weather-result');
+const searchCityResult = document.getElementById('search-result');
 
-//TODO: terminar esto
-let weatherObject = {
-    'id':                  '',
-    'city':                '',
-    'long':                '',
-    'lat':                 '',
-    'weather_main':        '',
-    'weather_description': '',
-    'weather_icon':        '',
-    'temperature':         '',
-    'feels_like':          '',
-    'temp_min':            '',
-    'temp_max':            '',
-    'pressure':            '',
-    'humidity':            '',
-    'visibility':          '',
-    'wind_speed':          '',
-    'wind_deg':            '',
-    'clouds':              '',
-    setObjectState(data) {
-        Object.keys(data).forEach(key => {
-            // console.log(key);
-            // console.log(data[key]);
-            this.key = data[key];
-            // console.log(this.key);
-            return this;
-        });  
-    }
-};
-
-
-// let modalClose = document.querySelector('.close-modal');
-// let weatherModal = document.querySelector('.weather-modal');
 
 const searchResult = {
     id:      document.getElementById('weather-id'),
@@ -56,16 +27,11 @@ const searchResult = {
 /** MAIN FUNCTIONS */
 
 
+
 searchForm.addEventListener('submit', function (e) {
     e.preventDefault();
-    // if (isSearchRepeated()) {
-    //     hideElement(weatherResult);
-    //     showElement(loader);
-    //     clearInput();
-    //     return;
-    // }
+    const loaderElement = createElement(loader);
     hideElement(weatherResult);
-    showElement(loader);
     let bodyResponse = '';
     
     let searchInputValue = searchInput.value;
@@ -80,7 +46,8 @@ searchForm.addEventListener('submit', function (e) {
         .then(res => res.json())
         .then(data => {
             bodyResponse = data.body;
-            hideElement(loader);
+            weatherObject.setObjectState(bodyResponse);
+            loaderElement.remove();
             showElement(weatherResult);
             clearInput();
             updateResult(bodyResponse);
@@ -91,33 +58,12 @@ searchForm.addEventListener('submit', function (e) {
 });
 
 
-for (weatherRes of weatherResultAll) {
+for (let weatherRes of weatherResultAll) {
     weatherRes.addEventListener('click', function () {
-        let modal = {
-            type: 'div',
-            parent: document.body,
-            attributes: {
-                class: 'weather-modal'
-            },
-            children: [{
-                type: 'button',
-                attributes: {
-                    class: 'close-modal',
-                },
-                children: ['x']
-            }]
-        };
-        let overlay = {
-            type: 'div',
-            parent: document.body,
-            attributes: {
-                class: 'overlay'
-            },
-            children: []
-        };
+        const weatherModalExists = document.querySelector('.weather-modal') ?? false;
         // TODO: Mejorar esta forma de obtener el id en el dom
         let objectId = weatherRes.children[1].children[0].textContent;
-        console.log(objectId);
+
         fetch('api/searchbyid', {
             method: 'POST',
             headers: {
@@ -127,23 +73,27 @@ for (weatherRes of weatherResultAll) {
         })
         .then(res => res.json())
         .then(data => {
-            let al = weatherObject.setObjectState(data.body);
-            console.log(al);
-        })
-        if (!document.querySelector('.weather-modal')) {
-            let weatherModal = createElement(modal);
-            let overlayEffect = createElement(overlay);
-            weatherModal.children[0].addEventListener('click', function () {
-                weatherModal.remove();
-                overlayEffect.remove();
-            });  
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
+            weatherObject.setObjectState(data.body);
+            modal.updateModalChildren();
+            if (!document.querySelector('.weather-modal')) {
+                let weatherModal = createElement(modal);
+                let overlayEffect = createElement(overlay);
+                weatherModal.children[0].addEventListener('click', function () {
                     weatherModal.remove();
                     overlayEffect.remove();
-                }
-            });
-        }
+                });  
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape') {
+                        weatherModal.remove();
+                        overlayEffect.remove();
+                    }
+                });
+                overlayEffect.addEventListener('click', function () {
+                    weatherModal.remove();
+                    overlayEffect.remove();
+                });
+            }
+        })
     });
 }
 
@@ -159,13 +109,14 @@ const updateLatestSearch = function (msg) {
     })
     .then(res => res.json())
     .then(data => {
+        let resultId    = document.querySelectorAll('.latest-r-id'); 
         let resultImg   = document.querySelectorAll('.latest-r-img');
         let resultTemp  = document.querySelectorAll('.latest-r-temp');
         let resultTitle = document.querySelectorAll('.latest-r-title');
         let resultMain  = document.querySelectorAll('.latest-r-main');
         data.latest_search.forEach((el, index) => {
-            console.log(el);
-            let {weather_icon, temperature, city, weather_main} = el;
+            let {id, weather_icon, temperature, city, weather_main} = el;
+            resultId[index].textContent = id;
             resultImg[index].src = `http://openweathermap.org/img/wn/${weather_icon}@2x.png`;
             resultTemp[index].textContent = `${kelvinToCelsius(temperature)} °C`;
             resultTitle[index].textContent = city;
@@ -178,9 +129,8 @@ const updateLatestSearch = function (msg) {
 
 
 const updateResult = function (bodyResponse) {
-    
     if (typeof bodyResponse === 'object') {
-        console.log(bodyResponse);
+        searchResult.id.textContent = bodyResponse.id;
         searchResult.city.textContent = bodyResponse.city;
         searchResult.weather.textContent = bodyResponse.weather_main;
         searchResult.temp.textContent = `${kelvinToCelsius(bodyResponse.temperature)} °C`;
@@ -220,11 +170,6 @@ const createElement = function ({
 }
 
 
-const isSearchRepeated = function () {
-    return searchInput.value.toLowerCase() == searchResult.city.textContent.toLowerCase();
-}
-
-
 const kelvinToCelsius = function (temp) {
     return Math.round(Number(temp) - 273.15 * 10 / 10) 
 }
@@ -250,10 +195,6 @@ const resetSearchResult = function () {
     searchResult.weather.textContent = '';
     searchResult.temp.textContent = '';
     searchResult.icon.src = '';
-}
-
-const setObjectState = function () {
-
 }
 
 });

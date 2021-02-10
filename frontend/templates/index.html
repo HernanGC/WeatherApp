@@ -9,13 +9,14 @@
 
 <div class="containert" id="main-container-index">
     <div class="flex-container">
-        <div class="row col-12">
-            <div id="loading" class="hidden"></div>
+        <div class="row col-12" id="result-container">
+            <!-- <div id="loading" class="hidden"></div> -->
             <div class="weather-result last-s hidden" id="weather-result">
                 <div class="col">
-                    <div class="card card-weather">
+                    <div class="card card-weather city-result" id="search-result">
                         <img src="" class="card-img-top" id="temp-img" alt="">
                         <div class="card-body">
+                            <p class="hidden" id="weather-id"></p>
                             <p class="card-text" id="temp"></p>
                             <h5 class="card-title" id="city"></h5>
                             <p class="card-text" id="weather"></p>
@@ -43,7 +44,7 @@
                             <div class="card card-weather">
                                 <img src='http://openweathermap.org/img/wn/{{search.weather_icon}}@2x.png' class="card-img-top latest-r-img" alt="">
                                 <div class="card-body">
-                                    <p class="hidden" id="weather-id">{{search.getId}}</p>
+                                    <p class="hidden latest-r-id">{{search.getId}}</p>
                                     <p class="card-text latest-r-temp" >{{search.getCelsiusTemperature}} °C</p>
                                     <h5 class="card-title latest-r-title" >{{search.city}}</h5>
                                     <p class="card-text latest-r-main" >{{search.weather_main}}</p>

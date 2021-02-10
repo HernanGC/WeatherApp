@@ -1,11 +1,3 @@
-def prepareSearchData(data):
-    search_object = handleSearchData(data)
-    return {
-        'search_object': search_object,
-        'result_object': getLastSearch(search_object)
-    }
-
-
 def handleSearchData(data):
     return {
         'city'               : data['name'],
@@ -27,28 +19,12 @@ def handleSearchData(data):
     }
 
 
-def getLastSearch(search):
-    return {
-        'id'                 : search.get('id', ''),
-        'city'               : search['city'],
-        'long'               : search['long'],
-        'lat'                : search['lat'],
-        'weather_main'       : search['weather_main'],
-        'weather_description': search['weather_description'],
-        'weather_icon'       : search['weather_icon'],
-        'temperature'        : search['temperature'],
-        'feels_like'         : search['feels_like'],
-        'temp_min'           : search['temp_min'],
-        'temp_max'           : search['temp_max'],
-        'pressure'           : search['pressure'],
-        'humidity'           : search['humidity'],
-        'visibility'         : search['visibility'],
-        'wind_speed'         : search['wind_speed'],
-        'wind_deg'           : search['wind_deg'],
-        'clouds'             : search['clouds']
-    }
-
     
 def kelvinToCelsius(temp):
     return round(temp - 273.15)
 
+def decodeRequestBody(requestBody):
+    return decodedRequestToString(requestBody.decode('utf-8'))
+
+def decodedRequestToString(decodedRequest):
+    return decodedRequest.replace('"', '')

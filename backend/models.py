@@ -5,22 +5,22 @@ from backend.helpers import kelvinToCelsius
 
 
 class LatestSearch(models.Model):
-    city = models.CharField(max_length=30)
-    long = models.IntegerField()
-    lat = models.IntegerField()
-    weather_main = models.CharField(max_length=30)
+    city                = models.CharField(max_length=30)
+    long                = models.IntegerField()
+    lat                 = models.IntegerField()
+    weather_main        = models.CharField(max_length=30)
     weather_description = models.CharField(max_length=30)
-    weather_icon = models.CharField(max_length=30)
-    temperature = models.IntegerField()
-    feels_like = models.IntegerField()
-    temp_min = models.IntegerField()
-    temp_max = models.IntegerField()
-    pressure = models.IntegerField()
-    humidity = models.IntegerField()
-    visibility = models.IntegerField()
-    wind_speed = models.IntegerField()
-    wind_deg = models.IntegerField()
-    clouds = models.IntegerField()
+    weather_icon        = models.CharField(max_length=30)
+    temperature         = models.IntegerField()
+    feels_like          = models.IntegerField()
+    temp_min            = models.IntegerField()
+    temp_max            = models.IntegerField()
+    pressure            = models.IntegerField()
+    humidity            = models.IntegerField()
+    visibility          = models.IntegerField()
+    wind_speed          = models.IntegerField()
+    wind_deg            = models.IntegerField()
+    clouds              = models.IntegerField()
 
     def __str__(self):
         return f'{self.pk} - {self.city}'
@@ -58,13 +58,15 @@ class FavouriteCity(models.Model):
         return self.city.weather_icon
 
 class City(models.Model):
-    city = models.CharField(max_length=30, blank=True)
-    country = models.CharField(max_length=40)
-    region = models.CharField(max_length=40)
-    wheather = models.TextField(max_length=200)
-    temperature = models.CharField(max_length=5)
-    created_date = models.DateTimeField(auto_now_add=True)
-    modified_date = models.DateTimeField(auto_now=True)
+    city_fk             = models.ForeignKey(LatestSearch, on_delete=models.CASCADE)
+    city_name           = models.CharField(default=city_fk.name)
+    weather_main        = models.CharField(default='xd')
+    weather_description = models.CharField(max_length=30)
+    weather_icon        = models.CharField(max_length=30)
+    temperature         = models.CharField(max_length=30)
+    feels_like          = models.CharField(max_length=30)
+    temp_min            = models.CharField(max_length=30)
+    temp_max            = models.CharField(max_length=30)
 
     def __str__(self):
         return self.city
