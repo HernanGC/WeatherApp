@@ -196,5 +196,4 @@ const resetSearchResult = function () {
     searchResult.temp.textContent = '';
     searchResult.icon.src = '';
 }
-
 });
