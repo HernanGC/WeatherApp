@@ -63,37 +63,40 @@ for (let weatherRes of weatherResultAll) {
         const weatherModalExists = document.querySelector('.weather-modal') ?? false;
         // TODO: Mejorar esta forma de obtener el id en el dom
         let objectId = weatherRes.children[1].children[0].textContent;
-
-        fetch('api/searchbyid', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrf
-            },
-            body: JSON.stringify(objectId)
-        })
-        .then(res => res.json())
-        .then(data => {
-            weatherObject.setObjectState(data.body);
-            modal.updateModalChildren();
-            if (!document.querySelector('.weather-modal')) {
-                let weatherModal = createElement(modal);
-                let overlayEffect = createElement(overlay);
-                weatherModal.children[0].addEventListener('click', function () {
-                    weatherModal.remove();
-                    overlayEffect.remove();
-                });  
-                document.addEventListener('keydown', function (e) {
-                    if (e.key === 'Escape') {
+        console.log(objectId);
+        if (objectId) {
+            fetch('api/searchbyid', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrf
+                },
+                body: JSON.stringify(objectId)
+            })
+            .then(res => res.json())
+            .then(data => {
+                weatherObject.setObjectState(data.body);
+                modal.updateModalChildren();
+                if (!document.querySelector('.weather-modal')) {
+                    let weatherModal = createElement(modal);
+                    let overlayEffect = createElement(overlay);
+                    weatherModal.children[0].addEventListener('click', function () {
                         weatherModal.remove();
                         overlayEffect.remove();
-                    }
-                });
-                overlayEffect.addEventListener('click', function () {
-                    weatherModal.remove();
-                    overlayEffect.remove();
-                });
-            }
-        })
+                    });  
+                    document.addEventListener('keydown', function (e) {
+                        if (e.key === 'Escape') {
+                            weatherModal.remove();
+                            overlayEffect.remove();
+                        }
+                    });
+                    overlayEffect.addEventListener('click', function () {
+                        weatherModal.remove();
+                        overlayEffect.remove();
+                    });
+                }
+            })
+            .catch(err => console.log(`Error: ${err}`))    
+        }
     });
 }
 

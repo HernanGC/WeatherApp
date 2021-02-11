@@ -35,8 +35,27 @@ class LatestSearch(models.Model):
     def getId(self):
         return self.pk
 
+    def setModalObj(self):
+        self.setCelsiusTemperature()
+        self.capitalize()
+        self.temperature = f'Temperature\n {self.temperature}'
+        self.feels_like  = f'Feels like {self.feels_like}'
+        self.temp_max    = f'Min {self.temp_max}'
+        self.temp_min    = f'Max {self.temp_min}'
+
     def getCelsiusTemperature(self):
         return round(kelvinToCelsius(self.temperature))
+    
+    def capitalize(self):
+        self.weather_description = self.weather_description.capitalize()
+    
+    def setCelsiusTemperature(self):
+        self.temperature = round(kelvinToCelsius(self.temperature))
+        self.feels_like  = round(kelvinToCelsius(self.feels_like))
+        self.temp_max    = round(kelvinToCelsius(self.temp_max))
+        self.temp_min    = round(kelvinToCelsius(self.temp_min))
+
+
 
 class FavouriteCity(models.Model):
     city = models.ForeignKey(LatestSearch, on_delete=models.CASCADE)
@@ -58,9 +77,8 @@ class FavouriteCity(models.Model):
         return self.city.weather_icon
 
 class City(models.Model):
-    city_fk             = models.ForeignKey(LatestSearch, on_delete=models.CASCADE)
-    city_name           = models.CharField(default=city_fk.name)
-    weather_main        = models.CharField(default='xd')
+    name                = models.ForeignKey(LatestSearch, on_delete=models.CASCADE, name='name', related_name='name')
+    weather_main        = models.CharField(max_length=30)
     weather_description = models.CharField(max_length=30)
     weather_icon        = models.CharField(max_length=30)
     temperature         = models.CharField(max_length=30)

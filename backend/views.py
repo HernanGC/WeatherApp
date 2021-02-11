@@ -52,7 +52,7 @@ def ajaxLatestSearch(request):
             latest_search = LatestSearch.objects.all().order_by('-id')[:5].values()
         return JsonResponse({'latest_search': list(latest_search)})
     else:
-        return JsonResponse({'msg': 'fallo'})
+        return JsonResponse({'msg': 'fail', 'body': 'Wrong request method'})
 
 
 def getLastSearchObject():
@@ -62,12 +62,14 @@ def getLastSearchObject():
 def ajaxGetSearchById(request):
     if request.method == 'POST':
         objectId = decodeRequestBody(request.body)
-        print(type(objectId))
-        latest_search = LatestSearch.objects.get(pk=int(objectId))
-        print(model_to_dict(latest_search))
-        return JsonResponse({'msg': 'success', 'body': model_to_dict(latest_search)})
+        try:
+            latest_search = LatestSearch.objects.get(pk=int(objectId))
+            latest_search.setModalObj()
+            return JsonResponse({'msg': 'success', 'body': model_to_dict(latest_search)})
+        except:
+            return JsonResponse({'msg': 'fail', 'body': 'Wrong id given'})
     else:
-        return JsonResponse({'msg': 'fallo'})
+        return JsonResponse({'msg': 'fail', 'body': 'Wrong request method'})
 
 
 def getModelObjectById():

@@ -38,40 +38,55 @@ export let modal = {
     }, {
         type: 'div',
         attributes: {
-            class: 'container-fluid'
+            class: 'modal-content-h'
         },
         children: [{
-            type: 'h2',
-            attributes: {},
-            children: []
-        }, {
-            type: 'p',
-            attributes: {},
-            children: []
-        }, {
-            type: 'p',
-            attributes: {},
-            children: []
-        }, {
-            type: 'p',
-            attributes: {},
-            children: []
-        }, {
-            type: 'p',
-            attributes: {},
-            children: []
-        }, {
-            type: 'p',
-            attributes: {},
-            children: []
-        }, {
-            type: 'p',
-            attributes: {},
-            children: []
-        }, {
-            type: 'p',
+            type: 'h4',
             attributes: {
-                class: ''
+                class: 'modal-r-weather'
+            },
+            children: []
+        }, {
+            type: 'h1',
+            attributes: {
+                class: 'modal-r-main'
+            },
+            children: []
+        }, {
+            type: 'h3',
+            attributes: {
+                class: 'modal-r-descr'
+            },
+            children: []
+        }, {
+            type: 'img',
+            attributes: {
+                class: 'modal-r-img',
+                src: ''
+            },
+            children: []
+        }, {
+            type: 'h5',
+            attributes: {
+                class: 'modal-r-curr'
+            },
+            children: []
+        }, {
+            type: 'h5',
+            attributes: {
+                class: 'modal-r-feel'
+            },
+            children: []
+        }, {
+            type: 'h5',
+            attributes: {
+                class: 'modal-r-max'
+            },
+            children: []
+        }, {
+            type: 'h5',
+            attributes: {
+                class: 'modal-r-min'
             },
             children: []
         }]
@@ -79,11 +94,12 @@ export let modal = {
     updateModalChildren() {
         /** Obtengo los elementos children (los de mas abajo) que voy a pintar en el modal */
         let modalChildren = this.children[1].children;
-        let elements = ['city', 'weather_main', 'weather_description', 'weather_icon', 'temperature', 'feels_like', 'temp_min', 'temp_max'];
-        let count = 0;
+        let elements = ['weather_main', 'city', 'weather_description', 'weather_icon', 'temperature', 'feels_like', 'temp_min', 'temp_max'];
         Object.keys(modalChildren).forEach(key => {
-            count++;
-            modalChildren[key].children = (count < 5) ? [capitalize(weatherObject[elements[key]])] : [`${kelvinToCelsius(weatherObject[elements[key]])} °C`];
+            if (elements[key] == 'weather_icon') {
+                modalChildren[key].attributes.src = `http://openweathermap.org/img/wn/${weatherObject[elements[key]]}@2x.png`
+            }
+            modalChildren[key].children = (elements[key] == 'weather_icon') ? [] : [weatherObject[elements[key]]];
         });
         return this;
     }
@@ -106,7 +122,8 @@ export const loader = {
 };
 
 export const kelvinToCelsius = function (temp) {
-    return Math.round(Number(temp) - 273.15 * 10 / 10) 
+    // return Math.round(Number(temp) - 273.15 * 10 / 10) 
+    return temp;
 }
 
 const capitalize = function (str) {
